@@ -31,6 +31,7 @@ function [Yprime, Gprime, skipped, deltaCalc] = TSSRMS(X, Sigma_c, Sigma_u, tran
             error()
         end
         
+        GsetminY=((G-Y)>0);
 
         if GsetminY(xdelta)==1
             skipped = true; Yprime = Y; Gprime=G;
