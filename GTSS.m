@@ -1,4 +1,4 @@
-function [X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transmin, transplus, X0plus, X0min, Xmplus, Xmmin] = GTSS(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transmin, transplus, X0plus, X0min, Xmplus, Xmmin, skipCalc, doGroup)
+function [X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transminindices, transplus, X0plus, X0min, Xmplus, Xmmin] = GTSS(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transminindices, transplus, X0plus, X0min, Xmplus, Xmmin, skipCalc, doGroup)
 
 if doGroup==false
     error();
@@ -42,66 +42,25 @@ if sum(Xmmin)>0
 end
 
 if size(transplus,2)>0
-    [Y, G, skipped, deltaCalc] = TSSAT(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transplus, skipCalc, doGroup);
+    [Y, G, skipped, deltaCalc, deltaCalcInd] = TSSAT(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transplus, skipCalc, doGroup);
     if skipped==false
         transX = [transX deltaCalc];
         %remove deltaCalc from transplus, has been processed
-        for ti = 1:size(deltaCalc,2)
-            xor = deltaCalc(1,ti);
-            sigma = deltaCalc(2,ti);
-            xtar = deltaCalc(3,ti);
+        transplus(:,deltaCalcInd)=[];
 
-            edgfrmxor = find(transplus(1,:)==xor);
-
-            for j=1:length(edgfrmxor)
-                t = transplus(:,edgfrmxor(j));
-                if t(2)==sigma && t(3)==xtar
-                    transplus(:,edgfrmxor(j))=[];
-                    break; %this assumes this exact transition only exists once in transX
-                end
-            end
-        end
         
         return
     end
 end
 
-if size(transmin,2)>0
-    [Y, G, skipped, deltaCalc] = TSSRT(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transmin, skipCalc, doGroup);
+if size(transminindices,2)>0
+    [Y, G, skipped, deltaCalc] = TSSRT(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transminindices, skipCalc, doGroup);
     if skipped==false
         %remove deltaCalc from transX, has been processed
-        for ti = 1:size(deltaCalc,2)
-            xor = deltaCalc(1,ti);
-            sigma = deltaCalc(2,ti);
-            xtar = deltaCalc(3,ti);
-
-            edgfrmxor = find(transX(1,:)==xor);
-
-            for j=1:length(edgfrmxor)
-                t = transX(:,edgfrmxor(j));
-                if t(2)==sigma && t(3)==xtar
-                    transX(:,edgfrmxor(j))=[];
-                    break; %this assumes this exact transition only exists once in transX
-                end
-            end
-        end
+        transX(:,deltaCalc)=zeros(3,size(deltaCalc,2));
 
         %remove deltaCalc from transmin, has been processed
-        for ti = 1:size(deltaCalc,2)
-            xor = deltaCalc(1,ti);
-            sigma = deltaCalc(2,ti);
-            xtar = deltaCalc(3,ti);
-
-            edgfrmxor = find(transmin(1,:)==xor);
-
-            for j=1:length(edgfrmxor)
-                t = transmin(:,edgfrmxor(j));
-                if t(2)==sigma && t(3)==xtar
-                    transmin(:,edgfrmxor(j))=[];
-                    break; %this assumes this exact transition only exists once in transX
-                end
-            end
-        end
+        transminindices = setdiff(transminindices,deltaCalc);
 
         return
     end

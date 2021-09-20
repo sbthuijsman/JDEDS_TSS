@@ -4,10 +4,6 @@ function [Yprime, Gprime, skipped, deltaCalc] = TSSRIS(X, Sigma_c, Sigma_u, tran
     
     if skipCalc==false && doGroup==false
         %we are performing ITSS
-        if length(xdelta)~=1
-            error = "unexpected delta length"
-            error()
-        end
 
         if Y(xdelta)==1
             arg = X0;
@@ -20,10 +16,6 @@ function [Yprime, Gprime, skipped, deltaCalc] = TSSRIS(X, Sigma_c, Sigma_u, tran
 
     elseif skipCalc==true && doGroup==false
         %skip FRS, BRS and SS calls
-        if length(xdelta)~=1
-            error = "unexpected delta length"
-            error()
-        end
 
         if Y(xdelta)==1
             skipped = true; Yprime = Y; Gprime=G;

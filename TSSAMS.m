@@ -4,14 +4,8 @@ function [Yprime, Gprime, skipped, deltaCalc] = TSSAMS(X, Sigma_c, Sigma_u, tran
     
     if skipCalc==false && doGroup==false
         %we are performing ITSS
-        if length(xdelta)~=1
-            error = "unexpected delta length"
-            error()
-        end
         
-        GsetminY=((G-Y)>0);
-
-        if GsetminY(xdelta)==1
+        if (G(xdelta)-Y(xdelta))==1
             arg1 = ((Y+X0)>0);
             arg2 = ((Y+Xm)>0);
             arg2(xdelta)=1;
@@ -22,14 +16,8 @@ function [Yprime, Gprime, skipped, deltaCalc] = TSSAMS(X, Sigma_c, Sigma_u, tran
 
     elseif skipCalc==true && doGroup==false
         %skip FRS, BRS and SS calls
-        if length(xdelta)~=1
-            error = "unexpected delta length"
-            error()
-        end
         
-        GsetminY=((G-Y)>0);
-
-        if GsetminY(xdelta)==1
+        if (G(xdelta)-Y(xdelta))==1
             skipped = true; Yprime = Y; Gprime=G;
 
         else
@@ -39,12 +27,10 @@ function [Yprime, Gprime, skipped, deltaCalc] = TSSAMS(X, Sigma_c, Sigma_u, tran
     elseif skipCalc==false && doGroup==true
         %perform grouped FRS, BRS, or SS call
         
-        GsetminY=((G-Y)>0);
-        
         Gr1=zeros(size(xdelta));
         for xd=1:length(xdelta)
             if XDelta(xd)==1
-                if GsetminY(xd)==1
+                if (G(xd)-Y(xd))==1
                     Gr1(xd)=1;
                 else
                     0;

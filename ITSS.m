@@ -1,4 +1,4 @@
-function [X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transmin, transplus, X0plus, X0min, Xmplus, Xmmin] = ITSS(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transmin, transplus, X0plus, X0min, Xmplus, Xmmin, skipCalc, doGroup)
+function [X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transminindices, transplus, X0plus, X0min, Xmplus, Xmmin] = ITSS(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transminindices, transplus, X0plus, X0min, Xmplus, Xmmin, skipCalc, doGroup)
 
 if doGroup==true
     error();
@@ -45,32 +45,24 @@ end
 transplus_skipped = [];
 for ti = 1:size(transplus,2)
     transdelta = transplus(:,ti);
-    [Y, G, skipped, ~] = TSSAT(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transdelta, skipCalc, doGroup);
+    [Y, G, skipped, ~, ~] = TSSAT(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transdelta, skipCalc, doGroup);
     if skipped==false
         transX = [transX transdelta];
     else
         transplus_skipped = [transplus_skipped transdelta];
     end
 end
-transplus = transplus_skipped; %this means it is empty if none were skipped, which we expect
+transplus = transplus_skipped;
 
 transmin_skipped = [];
-for ti = 1:size(transmin,2)
-    transdelta = transmin(:,ti);
-    [Y, G, skipped, ~] = TSSRT(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transdelta, skipCalc, doGroup);
+for ti = transminindices
+    [Y, G, skipped, ~] = TSSRT(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, ti, skipCalc, doGroup);
     if skipped==false
-        edgfrmxor = find(transX(1,:)==transdelta(1));
-        for j=1:length(edgfrmxor)
-            t = transX(:,edgfrmxor(j));
-            if t(2)==transdelta(2) && t(3)==transdelta(3)
-                transX(:,edgfrmxor(j))=[];
-                break; %this assumes this exact transition only exists once in transX
-            end
-        end
+        transX(:,ti)=[0;0;0];
     else
-        transmin_skipped = [transmin_skipped transdelta];
+        transmin_skipped = [transmin_skipped ti];
     end
 end
-transmin = transmin_skipped; %this means it is empty if none were skipped, which we expect
+transminindices = transmin_skipped;
 
 end
