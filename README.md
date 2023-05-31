@@ -1,5 +1,5 @@
 # JDEDS_TSS
-These are all the files used to compute the results for "Transformational Supervisor Synthesis for Evolving Systems", Thuijsman S., Reniers M. (2021), Journal of Discrete Event Dynamic Systems (under review)
+These are all the files used to compute the results for "Transformational Supervisor Synthesis for Evolving Systems", Thuijsman S., Reniers M. (2022), Journal of Discrete Event Dynamic Systems
 
 The experiments can be repeated by performing:
 - MLsynth.m (for base and variant model); this is the supervisor synthesis algorithm (Algorithm 1)
