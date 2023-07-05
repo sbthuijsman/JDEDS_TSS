@@ -1,9 +1,10 @@
 %% DLSS (Ouedrago synth)
-function [Y, G] = DLSS(X, Sigma_c, Sigma_u, transK, X0, Xm)
+function [Y, G] = DLSS(X, adj, adjrev, adj_urev, X0, Xm)
     Xk1=X;
     while(true)
-        Nk = BRS(Xk1,(Sigma_c+Sigma_u)>0,transK,Xk1.*Xm);
-        Bk = BRS(Xk1,Sigma_u,transK,(X.*(Xk1-Nk))>0);
+        Nk = FRS(Xk1,adjrev,Xk1.*Xm); %BRS
+        Bk = FRS(Xk1,adj_urev,(X.*(Xk1-Nk))>0); %BRS
+
         Xk2 = X.*((Xk1-Bk))>0;
         if isequal(Xk2,Xk1)
             G = Xk2;
@@ -12,5 +13,7 @@ function [Y, G] = DLSS(X, Sigma_c, Sigma_u, transK, X0, Xm)
             Xk1 = Xk2;
         end
     end
-    Y = FRS(G,Sigma_c+Sigma_u,transK,X0.*G);
+
+    Y = FRS(G,adj,X0.*G);
+
 end

@@ -1,4 +1,4 @@
-function [Yprime, Gprime, skipped, deltaCalc] = TSSAIS(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, xdelta, skipCalc, doGroup)
+function [Yprime, Gprime, skipped, deltaCalc] = TSSAIS(~, ~, ~, ~, adj, ~, ~, ~, ~, Y, G, xdelta, skipCalc, doGroup)
     deltaCalc=[];
     skipped=false;
     
@@ -8,7 +8,7 @@ function [Yprime, Gprime, skipped, deltaCalc] = TSSAIS(X, Sigma_c, Sigma_u, tran
         if (G(xdelta)-Y(xdelta))==1
             arg = Y;
             arg(xdelta)=1;
-            Yprime = FRS(G,(Sigma_c+Sigma_u)>0,transX,arg);
+            Yprime = FRS(G,adj,arg);
             Gprime = G;
         else
             Yprime = Y; Gprime=G;
@@ -41,7 +41,7 @@ function [Yprime, Gprime, skipped, deltaCalc] = TSSAIS(X, Sigma_c, Sigma_u, tran
         
         if sum(Gr1)>0
             arg = ((Y+Gr1)>0);
-            Yprime = FRS(G,(Sigma_c+Sigma_u)>0,transX,arg);
+            Yprime = FRS(G,adj,arg);
             Gprime = G;
             deltaCalc = Gr1;
         else

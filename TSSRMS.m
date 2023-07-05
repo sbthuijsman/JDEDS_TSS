@@ -1,4 +1,4 @@
-function [Yprime, Gprime, skipped, deltaCalc] = TSSRMS(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, xdelta, skipCalc, doGroup)
+function [Yprime, Gprime, skipped, deltaCalc] = TSSRMS(~, ~, ~, ~, adj, adjrev, adj_urev, X0, Xm, Y, G, xdelta, skipCalc, doGroup)
     deltaCalc=[];
     skipped=false;
     
@@ -9,11 +9,11 @@ function [Yprime, Gprime, skipped, deltaCalc] = TSSRMS(X, Sigma_c, Sigma_u, tran
             arg1 = ((Y+X0)>0);
             arg2 = ((Y+Xm)>0);
             arg2(xdelta)=0;
-            [Yprime,Gprime] = DLSS(G,Sigma_c,Sigma_u,transX,arg1,arg2);
+            [Yprime,Gprime] = DLSS(G, adj, adjrev, adj_urev, arg1, arg2);
         elseif Y(xdelta)==1
             arg = Xm;
             arg(xdelta)=0;
-            [Yprime,Gprime] = DLSS(G,Sigma_c,Sigma_u,transX,X0,arg);
+            [Yprime,Gprime] = DLSS(G, adj, adjrev, adj_urev, X0, arg);
         else
             Yprime = Y; Gprime=G;
         end
@@ -52,11 +52,11 @@ function [Yprime, Gprime, skipped, deltaCalc] = TSSRMS(X, Sigma_c, Sigma_u, tran
             arg1 = ((Y+X0)>0);
             arg2 = ((Y+Xm+Gr1)>0);
             arg2 = ((arg2-Gr1)>0);
-            [Yprime,Gprime] = DLSS(G,Sigma_c,Sigma_u,transX,arg1,arg2);
+            [Yprime,Gprime] = DLSS(G, adj, adjrev, adj_urev, arg1, arg2);
             deltaCalc=Gr1;
         elseif sum(Gr2)>0
             arg = ((Xm-Gr1)>0);
-            [Yprime,Gprime] = DLSS(G,Sigma_c,Sigma_u,transX,X0,arg);
+            [Yprime,Gprime] = DLSS(G, adj, adjrev, adj_urev, X0, arg);
             deltaCalc=Gr2;
         else
             skipped =true; Yprime = Y; Gprime=G;

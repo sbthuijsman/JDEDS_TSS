@@ -4,7 +4,7 @@ load(['MLsys/' foldermodelname '/' modelname '_MLsys.mat'])
 
 tic
 
-[Y, G] = DLSS(X, Sigma_c, Sigma_u, transX, X0, Xm);
+[Y, G] = DLSS(X, adj, adjrev, adj_urev, X0, Xm);
 
 time = toc;
 

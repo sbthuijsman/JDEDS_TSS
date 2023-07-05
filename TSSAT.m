@@ -1,4 +1,4 @@
-function [Yprime, Gprime, skipped, deltaCalc, deltaCalcInd] = TSSAT(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transdelta, skipCalc, doGroup)
+function [Yprime, Gprime, skipped, deltaCalc, deltaCalcInd] = TSSAT(X, ~, Sigma_u, ~, adj, adjrev, adj_urev, X0, Xm, Y, G, transdelta, skipCalc, doGroup)
     deltaCalc=[];
     deltaCalcInd=-1;
     skipped=false;
@@ -11,28 +11,38 @@ function [Yprime, Gprime, skipped, deltaCalc, deltaCalcInd] = TSSAT(X, Sigma_c, 
         xtar=transdelta(3);
         
         if Y(xor)==1 && (G(xtar)-Y(xtar))==1
-            transarg = [transX transdelta];
-            Yprime = FRS(G,(Sigma_c+Sigma_u)>0,transarg,Y);
-            Gprime = G;
-            
+            adj{xor}(end+1)=xtar;
+
+            Yprime = FRS(G,adj,Y);
+            Gprime = G;        
+
         elseif G(xor)==1 && (X(xtar)-G(xtar))==1 && Sigma_u(sigma)==1
-            transarg = transX;
-                
-            %prune transarg
-            fnd = find(transX(1,:)==xor);
-            transarg(:,fnd)=zeros(3,size(fnd,2));
+
+            if ~isempty(adj{xor})
+                for xtar = adj{xor}
+                    adjrev{xtar} = adjrev{xtar}(adjrev{xtar}~=xor); %remove all xor from adjrev{xtar}
+                    adj_urev{xtar} = adj_urev{xtar}(adj_urev{xtar}~=xor); %remove all xor from adjrev{xtar}
+                end
+            end
+            adj{xor}=[];
+
                 
             arg1 = X0;
             arg1(xor)=0;
             arg2 = Xm;
             arg2(xor)=0;
-            [Yprime,Gprime] = DLSS(G,Sigma_c,Sigma_u,transarg,arg1,arg2);
+            [Yprime,Gprime] = DLSS(G, adj, adjrev, adj_urev, arg1, arg2);
             
         elseif (X(xor)-G(xor))==1 && xor~=xtar
-            transarg = [transX transdelta];
+            adj{xor}(end+1)=xtar;
+            adjrev{xtar}(end+1)=xor;
+            if Sigma_u(sigma)
+                adj_urev{xtar}(end+1)=xor;
+            end
+
             arg1 = ((Y+X0)>0);
             arg2 = ((Y+Xm)>0);
-            [Yprime,Gprime] = DLSS(X,Sigma_c,Sigma_u,transarg,arg1,arg2);
+            [Yprime,Gprime] = DLSS(X, adj, adjrev, adj_urev, arg1, arg2);
             
         else
             Yprime = Y; Gprime=G;
@@ -88,15 +98,15 @@ function [Yprime, Gprime, skipped, deltaCalc, deltaCalcInd] = TSSAT(X, Sigma_c, 
         end
         
         if sum(Gr1)>0
-            transarg = [transX Gr1];
-            Yprime = FRS(G,(Sigma_c+Sigma_u)>0,transarg,Y);
+            for i=1:size(Gr1,2)
+                adj{Gr1(1,i)}(end+1)=Gr1(3,i);
+            end
+            Yprime = FRS(G,adj,Y);
             Gprime = G;
             deltaCalc=Gr1;
             deltaCalcInd=Gr1ind;
             
         elseif sum(Gr2)>0
-            transarg = transX;
-
             arg1 = X0;
             arg2 = Xm;
             
@@ -106,22 +116,37 @@ function [Yprime, Gprime, skipped, deltaCalc, deltaCalcInd] = TSSAT(X, Sigma_c, 
                 
                 arg1(xor)=0;
                 arg2(xor)=0;
-            %prune transarg
-            fnd = find(transX(1,:)==xor);
-            transarg(:,fnd)=zeros(3,size(fnd,2));
-            
+                if ~isempty(adj{xor})
+                    for xtar = adj{xor}
+                        adjrev{xtar} = adjrev{xtar}(adjrev{xtar}~=xor); %remove all xor from adjrev{xtar}
+                        adj_urev{xtar} = adj_urev{xtar}(adj_urev{xtar}~=xor); %remove all xor from adj_urev{xtar}
+                    end
+                end
+                adj{xor}=[];
+
             end
             
-            [Yprime,Gprime] = DLSS(G,Sigma_c,Sigma_u,transarg,arg1,arg2);
+            [Yprime,Gprime] = DLSS(G, adj, adjrev, adj_urev, arg1, arg2);
             deltaCalc=Gr2;
             deltaCalcInd=Gr2ind;
-            
+
         elseif sum(Gr3)>0
-            
-            transarg = [transX Gr3];
+
+            for i=1:size(Gr3,2)
+                xor=Gr3(1,i);
+                sig=Gr3(2,i);
+                xtar=Gr3(3,i); 
+
+                adj{xor}(end+1)=xtar;
+                adjrev{xtar}(end+1)=xor;
+                if Sigma_u(sig)
+                    adj_urev{xtar}(end+1)=xor;
+                end
+            end
+
             arg1 = ((Y+X0)>0);
             arg2 = ((Y+Xm)>0);
-            [Yprime,Gprime] = DLSS(X,Sigma_c,Sigma_u,transarg,arg1,arg2);
+            [Yprime,Gprime] = DLSS(X, adj, adjrev, adj_urev, arg1, arg2);
             deltaCalc=Gr3;
             deltaCalcInd=Gr3ind;
             

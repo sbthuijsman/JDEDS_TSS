@@ -1,23 +1,20 @@
-function disc = FRS(X,Sigma,trans,Xinit)
+function disc = FRS(X,adj,Xinit)
 
-nX=length(X);
-disc = Xinit.*X; %discovered
-curlyr = Xinit.*X; %current BFS layer
+    disc = Xinit.*X; %discovered (logical array)
+    curlyr = find(Xinit.*X); %current BFS layer (indices)
 
-trans=quick_prune_trans(trans,X,Sigma,Xinit);
-
-while sum(curlyr)~=0
-nxtlyr = zeros(1,nX); %next BFS layer
-    for u = find(curlyr)
-        for edgi = find(trans(1,:)==u)
-            v = trans(3,edgi);
-            if disc(v)==0
-                disc(v)=1;
-                nxtlyr(v)=1;
+    %perform RS using adjacency list (with linear complexity)
+    while ~isempty(curlyr)
+    nxtlyr = []; %next BFS layer
+        for u = curlyr 
+            for v = adj{u}
+                if disc(v)==0 && X(v)==1
+                    disc(v)=1;
+                    nxtlyr = [nxtlyr v];
+                end
             end
         end
+        curlyr=nxtlyr;
     end
-    curlyr=nxtlyr;
-end
 
 end

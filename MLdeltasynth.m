@@ -18,7 +18,7 @@ if doITSS==true
     skipCalc=false;
     doGroup=false;
     
-    [X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transminindices, transplus, X0plus, X0min, Xmplus, Xmmin] = ITSS(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transminindices, transplus, X0plus, X0min, Xmplus, Xmmin, skipCalc, doGroup);
+    [X, Sigma_c, Sigma_u, transX, adj, adjrev, adj_urev, X0, Xm, Y, G, transminindices, transplus, X0plus, X0min, Xmplus, Xmmin] = ITSS(X, Sigma_c, Sigma_u, transX, adj, adjrev, adj_urev, X0, Xm, Y, G, transminindices, transplus, X0plus, X0min, Xmplus, Xmmin, skipCalc, doGroup);
      
 %% These lines for GTSS
 else
@@ -26,14 +26,15 @@ else
     while true
         skipCalc=true;
         doGroup=false;
-        [X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transminindices, transplus, X0plus, X0min, Xmplus, Xmmin] = ITSS(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transminindices, transplus, X0plus, X0min, Xmplus, Xmmin, skipCalc, doGroup);
+        [X, Sigma_c, Sigma_u, transX, adj, adjrev, adj_urev, X0, Xm, Y, G, transminindices, transplus, X0plus, X0min, Xmplus, Xmmin] = ITSS(X, Sigma_c, Sigma_u, transX, adj, adjrev, adj_urev, X0, Xm, Y, G, transminindices, transplus, X0plus, X0min, Xmplus, Xmmin, skipCalc, doGroup);
         DeltaSize = size(transplus,2)+size(transminindices,2)+sum(X0plus)+sum(X0min)+sum(Xmplus)+sum(Xmmin);
         if DeltaSize==0
             break
         end
+
         skipCalc=false;
         doGroup=true;
-        [X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transminindices, transplus, X0plus, X0min, Xmplus, Xmmin] = GTSS(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, transminindices, transplus, X0plus, X0min, Xmplus, Xmmin, skipCalc, doGroup);
+        [X, Sigma_c, Sigma_u, transX, adj, adjrev, adj_urev, X0, Xm, Y, G, transminindices, transplus, X0plus, X0min, Xmplus, Xmmin] = GTSS(X, Sigma_c, Sigma_u, transX, adj, adjrev, adj_urev, X0, Xm, Y, G, transminindices, transplus, X0plus, X0min, Xmplus, Xmmin, skipCalc, doGroup);
         DeltaSize = size(transplus,2)+size(transminindices,2)+sum(X0plus)+sum(X0min)+sum(Xmplus)+sum(Xmmin);
         if DeltaSize==0
             break

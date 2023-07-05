@@ -1,4 +1,4 @@
-function [Yprime, Gprime, skipped, deltaCalc] = TSSRIS(X, Sigma_c, Sigma_u, transX, X0, Xm, Y, G, xdelta, skipCalc, doGroup)
+function [Yprime, Gprime, skipped, deltaCalc] = TSSRIS(~, ~, ~, ~, adj, ~, ~, X0, ~, Y, G, xdelta, skipCalc, doGroup)
     deltaCalc=[];
     skipped=false;
     
@@ -8,7 +8,7 @@ function [Yprime, Gprime, skipped, deltaCalc] = TSSRIS(X, Sigma_c, Sigma_u, tran
         if Y(xdelta)==1
             arg = X0;
             arg(xdelta)=0;
-            Yprime = FRS(G,(Sigma_c+Sigma_u)>0,transX,arg);
+            Yprime = FRS(G,adj,arg);
             Gprime = G;
         else
             Yprime = Y; Gprime=G;
@@ -40,7 +40,7 @@ function [Yprime, Gprime, skipped, deltaCalc] = TSSRIS(X, Sigma_c, Sigma_u, tran
         
         if sum(Gr1)>0
             arg = ((X0-Gr1)>0);
-            Yprime = FRS(Y,(Sigma_c+Sigma_u)>0,transX,arg);
+            Yprime = FRS(Y,adj,arg);
             Gprime = G;
             deltaCalc = Gr1;
         else
